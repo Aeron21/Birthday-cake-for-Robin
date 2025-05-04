@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Happy 18th Birthday, Robin!</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      color: #fff;
+      font-family: 'Quicksand', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-family: 'Pacifico', cursive;
+      font-size: 3rem;
+      color: white;
+      text-shadow: 0 0 10px #ff99cc;
+      margin-bottom: 40px;
+    }
+
+    .cake {
+      position: relative;
+      width: 200px;
+      height: 180px;
+      margin-bottom: 30px;
+    }
+
+    .base {
+      position: absolute;
+      bottom: 0;
+      width: 200px;
+      height: 80px;
+      background: linear-gradient(to top, #fda4af, #fbcfe8);
+      border-radius: 0 0 100px 100px;
+    }
+
+    .cream {
+      position: absolute;
+      top: 20px;
+      width: 200px;
+      height: 60px;
+      background: #fff;
+      border-radius: 100px 100px 20px 20px;
+      z-index: 2;
+    }
+
+    .toppings {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      z-index: 3;
+    }
+
+    .topping {
+      width: 15px;
+      height: 15px;
+      background-color: pink;
+      border-radius: 50%;
+    }
+
+    .candle {
+      width: 10px;
+      height: 40px;
+      background: repeating-linear-gradient(
+        45deg,
+        white,
+        white 3px,
+        pink 3px,
+        pink 6px
+      );
+      border-radius: 2px;
+      position: relative;
+      margin: 0 5px;
+    }
+
+    .flame {
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 10px;
+      height: 15px;
+      background: orange;
+      border-radius: 50%;
+      box-shadow: 0 0 15px yellow;
+      animation: flicker 0.3s infinite alternate;
+    }
+
+    @keyframes flicker {
+      0% { transform: translateX(-50%) scale(1); }
+      100% { transform: translateX(-50%) scale(1.1); }
+    }
+
+    .candles {
+      display: flex;
+      justify-content: center;
+      position: absolute;
+      top: -50px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 4;
+    }
+
+    .audio-player {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Happy 18th Birthday, Robin!</h1>
+
+  <div class="cake">
+    <div class="candles">
+      <div class="candle"><div class="flame" id="flame1"></div></div>
+      <div class="candle"><div class="flame" id="flame2"></div></div>
+      <div class="candle"><div class="flame" id="flame3"></div></div>
+      <div class="candle"><div class="flame" id="flame4"></div></div>
+      <div class="candle"><div class="flame" id="flame5"></div></div>
+    </div>
+    <div class="cream"></div>
+    <div class="base"></div>
+  </div>
+
+  <audio class="audio-player" controls autoplay loop>
+    <source src="https://cdn.pixabay.com/audio/2023/02/03/audio_d8a9ef5665.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+
+  <script>
+    async function startMic() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const mic = audioContext.createMediaStreamSource(stream);
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+        mic.connect(analyser);
+
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        function checkVolume() {
+          analyser.getByteFrequencyData(dataArray);
+          const volume = dataArray.reduce((a, b) => a + b) / dataArray.length;
+          if (volume > 50) {
+            for (let i = 1; i <= 5; i++) {
+              const flame = document.getElementById("flame" + i);
+              if (flame) flame.remove();
+            }
+          } else {
+            requestAnimationFrame(checkVolume);
+          }
+        }
+        checkVolume();
+      } catch (err) {
+        console.error("Microphone access error:", err);
+      }
+    }
+
+    startMic();
+  </script>
+</body>
+</html>
